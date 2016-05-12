@@ -31,6 +31,9 @@ end
 
 local foo = load_foo()
 
+-- The PersonWrapper idea was taken from
+-- http://lua-users.org/lists/lua-l/2011-07/msg00496.html
+
 local PersonWrapper = {}
 PersonWrapper.__index = PersonWrapper
 
@@ -51,11 +54,12 @@ local function Person(...)
 end
 
 local function main()
+  -- A plain old C function
   println("1 + 2 = %d", foo.add(1, 2))
 
-  println("Creating person...")
+  -- Use the PersonWrapper stuff to work with C++ objects
   local person = Person("Mark Twain", 74)
-  println("The person '%s' is %d years old", person:name(), person:age());
+  println("'%s' is %d years old", person:name(), person:age());
   println("Done")
 end
 
