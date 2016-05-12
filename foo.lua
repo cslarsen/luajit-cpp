@@ -1,48 +1,62 @@
 local ffi = require("ffi")
 
-if ffi.os == "OSX" then
-  path = "libfoo.dylib"
-else 
-  path = "libfoo.so"
+local function load_foo()
+  if ffi.os == "OSX" then
+    path = "libfoo.dylib"
+  else
+    path = "libfoo.so"
+  end
+
+  io.write("Loading " .. path .. "\n")
+  local foo = ffi.load(path)
+  return foo
 end
 
-io.write("Loading " .. path .. "\n")
-local foo = ffi.load(path)
-
--- We will also need libc to call `free` on things like strings.
-local C = ffi.C
-
+-- Modified from foo.h
 ffi.cdef[[
-  char* name(const struct person* p);
+  typedef struct Person Person;
+
+  Person* new_person(const char* name, const int age);
+  char* name(const Person* p);
   int add(int a, int b);
-  int age(const struct person* p);
-  int days_lived(const struct person* p);
-  struct person* new_person(const char* name, const int age);
-  void delete_person(struct person* p);
+  int age(const Person* p);
+  int days_lived(const Person* p);
+  void delete_person(Person* p);
   void foo_free(void* ptr);
 ]]
-
-local function new_person(name, age)
-  return ffi.gc(foo.new_person(name, age),
-                foo.delete_person)
-end
-
-local function person_name(person)
-  -- Can't use C.free here; why not? Dunno, either we have two different libc
-  -- versions going on here, or there is some thread-lodal data or something.
-  -- It's weird. TODO: Find out.
-  local ptr = ffi.gc(foo.name(person), foo.foo_free)
-  return ffi.string(ptr)
-end
 
 local function println(format, ...)
   io.write(string.format(format, ...) .. "\n")
 end
 
-println("1 + 2 = %d", foo.add(1, 2))
+local foo = load_foo()
 
-local person = new_person("Mark Twain", 74)
-println("The person '%s' is %d years old",
-  person_name(person),
-  foo.age(person));
-println("Done")
+local PersonWrapper = {}
+PersonWrapper.__index = PersonWrapper
+
+function PersonWrapper.name(self)
+  local name = foo.name(self.super)
+  ffi.gc(name, foo.foo_free)
+  return ffi.string(name)
+end
+
+function PersonWrapper.age(self)
+  return foo.age(self.super)
+end
+
+local function Person(...)
+  local self = {super = foo.new_person(...)}
+  ffi.gc(self.super, foo.delete_person)
+  return setmetatable(self, PersonWrapper)
+end
+
+local function main()
+  println("1 + 2 = %d", foo.add(1, 2))
+
+  println("Creating person...")
+  local person = Person("Mark Twain", 74)
+  println("The person '%s' is %d years old", person:name(), person:age());
+  println("Done")
+end
+
+main()

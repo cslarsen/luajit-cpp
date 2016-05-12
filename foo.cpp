@@ -4,6 +4,12 @@
 #include <stdexcept>
 #include <string>
 
+#ifdef DEBUG
+# define LOG(...) printf(...);
+#else
+# define LOG(...)
+#endif
+
 extern "C" int add(int a, int b)
 {
   return a + b;
@@ -34,13 +40,13 @@ extern "C" void* new_person(const char* name, const int age)
 {
   assert(name != NULL);
   Person* p = new Person(name, age);
-  printf("  new Person(\"%s\", %d) at %p\n", name, age, p);
+  LOG("  new Person(\"%s\", %d) at %p\n", name, age, p);
   return reinterpret_cast<void*>(p);
 }
 
 extern "C" void delete_person(Person* p)
 {
-  printf("  delete Person at %p\n", p);
+  LOG("  delete Person at %p\n", p);
   delete p;
 }
 
@@ -52,21 +58,23 @@ extern "C" int days_lived(const Person* p)
 
 extern "C" int age(const Person* p)
 {
-  printf("  age(Person at %p)\n", p);
+  LOG("  age(Person at %p)\n", p);
   assert(p != NULL);
   return p->age;
 }
 
 extern "C" char* name(const Person* p)
 {
-  printf("  name(Person at %p)\n", p);
+  LOG("  name(Person at %p)\n", p);
   assert(p != NULL);
-  return strdup(p->name.c_str());
+  char *s = strdup(p->name.c_str());
+  LOG("    => %p\n", s);
+  return s;
 }
 
 extern "C" void foo_free(void* p)
 {
-  printf("  foo_free(%p)\n", p);
+  LOG("  foo_free(%p)\n", p);
   assert(p != NULL);
   free(p);
 }
