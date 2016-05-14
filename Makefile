@@ -9,7 +9,7 @@ endif
 
 LUAJIT := luajit
 CXXFLAGS := -W -Wall -g
-TARGETS := foo.o libfoo.$(LIBEXT)
+TARGETS := libfoo.$(LIBEXT) libfirst.$(LIBEXT)
 
 all: $(TARGETS)
 	$(LUAJIT) foo.lua
