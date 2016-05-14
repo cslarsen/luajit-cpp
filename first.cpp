@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -50,6 +51,11 @@ EXTERNC const char* random_quote()
     "- George Pólya",
   };
 
-  const int index = arc4random() % sizeof(quotes)/sizeof(char*);
+  static int index = 0;
+  if ( !index ) {
+    srand(clock() ^ getpid());
+  }
+
+  index = rand() % sizeof(quotes)/sizeof(char*);
   return quotes[index];
 }

@@ -8,14 +8,15 @@ else
 endif
 
 LUAJIT := luajit
-CXXFLAGS := -W -Wall -g
+CXXFLAGS := -W -Wall -g -fpic
 TARGETS := libfoo.$(LIBEXT) libfirst.$(LIBEXT)
 
 all: $(TARGETS)
+	$(LUAJIT) first.lua
 	$(LUAJIT) foo.lua
 
 lib%.$(LIBEXT): %.o
-	$(CXX) $(CXXFLAFGS) -fpic -shared $< -o $@
+	$(CXX) $(CXXFLAFGS) -shared $< -o $@
 	strip $@
 
 clean:
