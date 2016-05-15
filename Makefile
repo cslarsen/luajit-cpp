@@ -9,10 +9,11 @@ endif
 
 LUAJIT := luajit
 CXXFLAGS := -W -Wall -g -fpic
-TARGETS := libadd.$(LIBEXT) libfoo.$(LIBEXT) libfirst.$(LIBEXT)
+TARGETS := libadd.$(LIBEXT) libperson.$(LIBEXT) libfoo.$(LIBEXT) libfirst.$(LIBEXT)
 
 all: $(TARGETS)
 	$(LUAJIT) add.lua
+	$(LUAJIT) person.lua
 	$(LUAJIT) first.lua
 	$(LUAJIT) foo.lua
 
