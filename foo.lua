@@ -14,6 +14,7 @@ end
 
 -- Modified from foo.h
 ffi.cdef[[
+  /* Out library */
   typedef struct Person Person;
 
   Person* new_person(const char* name, const int age);
@@ -22,7 +23,9 @@ ffi.cdef[[
   int age(const Person* p);
   int days_lived(const Person* p);
   void delete_person(Person* p);
-  void foo_free(void* ptr);
+
+  /* C library */
+  void free(void*);
 ]]
 
 local function println(format, ...)
@@ -30,6 +33,7 @@ local function println(format, ...)
 end
 
 local foo = load_foo()
+local C = ffi.C
 
 -- The PersonWrapper idea was taken from
 -- http://lua-users.org/lists/lua-l/2011-07/msg00496.html
@@ -39,7 +43,7 @@ PersonWrapper.__index = PersonWrapper
 
 function PersonWrapper.name(self)
   local name = foo.name(self.super)
-  ffi.gc(name, foo.foo_free)
+  ffi.gc(name, C.free)
   return ffi.string(name)
 end
 

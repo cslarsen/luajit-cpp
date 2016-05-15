@@ -73,10 +73,3 @@ extern "C" char* name(const Person* p)
   LOG("    => %p\n", s);
   return s;
 }
-
-extern "C" void foo_free(void* p)
-{
-  LOG("  foo_free(%p)\n", p);
-  assert(p != NULL);
-  free(p);
-}
